@@ -1,21 +1,4 @@
-static LAYER_LABELS: [&str; 14] = [
-    "White Pawns",
-    "White Rooks",
-    "White Knights",
-    "White Bishops",
-    "White Queens",
-    "White Kings",
-    "Black Pawns",
-    "Black Rooks",
-    "Black Knights",
-    "Black Bishops",
-    "Black Queens",
-    "Black Kings",
-    "Castling Rights",
-    "En Passant Rights"
-];
-
-fn str_to_move(s: &str) -> i32 {
+fn uci_to_move(s: &str) -> i32 {
     let mut o: i32 = -1;
     if s.len() == 2 {
         let p = match s.chars().nth(1).unwrap() {
@@ -42,6 +25,66 @@ fn str_to_move(s: &str) -> i32 {
         };
     }
     o
+}
+
+pub fn move_to_uci(n: i32) -> String {
+    let start = n / 64;
+    let start_row = start / 8;
+    let start_col = start % 8;
+    let end = n % 64;
+    let end_row = end / 8;
+    let end_col = end % 8;
+
+    let r1 = match start_row {
+        0 => '8',
+        1 => '7',
+        2 => '6',
+        3 => '5',
+        4 => '4',
+        5 => '3',
+        6 => '2',
+        7 => '1',
+        _ => panic!(),
+    };
+
+
+    let r2 = match end_row {
+        0 => '8',
+        1 => '7',
+        2 => '6',
+        3 => '5',
+        4 => '4',
+        5 => '3',
+        6 => '2',
+        7 => '1',
+        _ => panic!(),
+    };
+
+    let c1 = match start_col {
+        0 => 'a',
+        1 => 'b',
+        2 => 'c',
+        3 => 'd',
+        4 => 'e',
+        5 => 'f',
+        6 => 'g',
+        7 => 'h',
+        _ => panic!(),
+    };
+
+    let c2 = match end_col {
+        0 => 'a',
+        1 => 'b',
+        2 => 'c',
+        3 => 'd',
+        4 => 'e',
+        5 => 'f',
+        6 => 'g',
+        7 => 'h',
+        _ => panic!(),
+    };
+
+    format!("{}{}{}{}", c1, r1, c2, r2)
 }
 
 pub fn piece_at(board: &Vec<Vec<bool>>, sq: usize) -> i32 {
@@ -98,7 +141,7 @@ pub fn find_legal_moves(board: &mut Vec<Vec<bool>>, bothwhiteblack: i32) -> Vec<
                 if k < 6 && bothwhiteblack == 2 {
                     break;
                 }
-                if k > 4 && bothwhiteblack == 1 {
+                if k > 5 && bothwhiteblack == 1 {
                     break;
                 }
                 for j in 0..64usize {
@@ -114,13 +157,16 @@ pub fn find_legal_moves(board: &mut Vec<Vec<bool>>, bothwhiteblack: i32) -> Vec<
                     let mut in_check = false;
                     if bothwhiteblack == 0 {
                         let mut board_2 = board.clone();
+                        for l2 in 0..12 {
+                            board_2[l2][j] = false;
+                        }
                         board_2[k][i] = false;
                         board_2[k][j] = true;
                         let kl = if k < 6 { 5usize } else { 11usize };
                         let bwb2 = if k < 6 { 2 } else { 1 };
                         let mut king = 0;
                         for tile in 0..64usize {
-                            if board[kl][tile] {
+                            if board_2[kl][tile] {
                                 king = tile;
                                 break;
                             }
@@ -252,26 +298,13 @@ pub fn init(board: &mut Vec<Vec<bool>>) {
     board[13]= vec![false,false,false,false,false,false,false,false , false,false,false,false,false,false,false,false , false,false,false,false,false,false,false,false , false,false,false,false,false,false,false,false , false,false,false,false,false,false,false,false , false,false,false,false,false,false,false,false , false,false,false,false,false,false,false,false , false,false,false,false,false,false,false,false];
 }
 
-pub fn print_board(board: &Vec<Vec<bool>>) {
-    for layer in 0..14 {
-        println!("\n{}", LAYER_LABELS[layer]);
-        for r in 0..8 {
-            let mut row = "".to_string();
-            for c in 0..8 {
-                row.push_str(if board[layer][(r*8)+c] { "1 " } else { "0 " });
-            }
-            println!("{}", row);
-        }
-    }
-}
-
 pub fn make_move(mut board: Vec<Vec<bool>>, code: &str) -> (bool, Vec<Vec<bool>>) {
     if code.len() != 4 && code.len() != 5 {
         println!("Recieved invalid move code. Use the standard start end square system. Example: e2e4");
         panic!();
     }
-    let start = str_to_move(&code[0..2]);
-    let end = str_to_move(&code[2..4]);
+    let start = uci_to_move(&code[0..2]);
+    let end = uci_to_move(&code[2..4]);
     let mut p = "q";
     if code.len() == 5 {
         p = &code[4..5];
