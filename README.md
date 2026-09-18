@@ -8,21 +8,23 @@ You can create it with:
     let mut board = vec![vec![false; 64]; 14];
     init(&mut board);
 
-You can print all of its layers with:
-    print_board(&board);
-        * Each layer is a boolean mask of every instance a piece of that layers type. See the labels attached when calling print_board
-
-You can find the layer the piece at a given position 0-63 with:
+You can find the layer of the piece at a given position 0-63 with:
     piece_at(&board, p as usize)
+        * Returns -1 if there is no piece at that position
+        * This is your main tool to dispaly the board, fortunately it doesn't have any ridiculous inefficiency so you can call it as much as you want
 
 You can see all the legal moves as integers 0-4095 (start_row * 8 + start_column) * 64 + end_row * 8 + end_column
     let moves = find_legal_moves(&mut board, 0);
         * The last integer can only be 0, but it seems like there are no default arguments in rust, so you have to type it yourself.
-        * Also do note this gives all legal moves, for both sides, since it doesn't know whose turn it is.
+        * Also do note this gives all legal moves, for both sides, since the ame doesn't know whose turn it is.
+
+You can turn any of said move into a uci string again with:
+    let uci = move_to_uci(3981)
 
 Finally, you can make moves, just put in the UCI notation for it:
     let (result, board) = make_move(board, "c1f4");
         * The result will tell you if the move was legal or not
 
-Unfortunately it can't tell the difference between stalemate and checkmate, they both just mean no legal moves, this system certainly has its downsides.
+Unfortunately the only way to tell if there is a checkmate is if the player as no legal moves remaining, which is the same as stalemate.
 But stalemate should be a win anyway right?
+Also the other draws, insufficient material, 50 move rule, draw by repetition, are not calculated either.
