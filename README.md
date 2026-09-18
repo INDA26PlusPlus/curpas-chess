@@ -1,8 +1,9 @@
 # curpas-chess
-Hyper-optimised chess API
-
+Hyper-optimised chess API  
+```
 So it's pretty straight forward.
-You want to pass around a board object continuously, which is a vector< vector< bool > >
+
+You want to pass around a board object continuously, which is a vector<vector<bool>>
 
 You can create it with:
     let mut board = vec![vec![false; 64]; 14];
@@ -28,3 +29,4 @@ Finally, you can make moves, just put in the UCI notation for it:
 Unfortunately the only way to tell if there is a checkmate is if the player as no legal moves remaining, which is the same as stalemate.
 But stalemate should be a win anyway right?
 Also the other draws, insufficient material, 50 move rule, draw by repetition, are not calculated either.
+```
