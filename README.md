@@ -26,7 +26,7 @@ Finally, you can make moves, just put in the UCI notation for it:
     let (result, board) = make_move(board, "c1f4");
         * The result will tell you if the move was legal or not
 
-Unfortunately the only way to tell if there is a checkmate is if the player as no legal moves remaining, which is the same as stalemate.
+Unfortunately the only way to tell if there is a checkmate is if the player has no legal moves remaining, which is the same as stalemate.
 But stalemate should be a win anyway right?
-Also the other draws, insufficient material, 50 move rule, draw by repetition, are not calculated either.
+Also the other draws, insufficient material, 50 move rule, and draw by repetition, are not calculated either.
 ```
